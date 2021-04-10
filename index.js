@@ -29,6 +29,58 @@ const initialQuestions = [
         }
 ]
 
+const addEmployee = [
+    {
+        type: 'input',
+        message: 'Enter First Name',
+        name: 'firstName'
+    },
+    {
+        type: 'input',
+        message: 'Enter Last Name',
+        name: 'lastName'
+    },
+    {
+        type: 'list',
+        message: 'Choose a Role for the Employee',
+        name: 'role',
+        choices: []
+    },
+    {
+        type: 'list',
+        message: 'Choose an Employee Manager, if Applicable',
+        name: 'manager',
+        choices: []
+    },
+]
+
+const addRole = [
+    {
+        type: 'input',
+        message: "Enter the Role Title",
+        name: 'role'
+    },
+    {
+        type: 'input',
+        message: "Enter the Role Salary",
+        name: 'salary'
+    },
+    {
+        type: 'list',
+        message: 'Choose the Department for the Role',
+        name: 'department',
+        choices: []
+    }
+]
+
+const addDepartment = [
+    {
+        type: 'input',
+        message: "Enter the Department Name",
+        name: 'department'
+    }
+]
+
 function startQuestions() {
     inquirer
     .prompt(initialQuestions[0])
@@ -68,6 +120,30 @@ function viewEmployees(option) {
 
 function addEmpDepOrRole(option) {
     console.log(option);
+    if (option === "Add Employee") {
+        inquirer
+            .prompt(addEmployee)
+            .then( (response) =>
+            {
+                console.log(response);
+            })
+     } 
+     if (option === "Add Role") {
+        inquirer
+            .prompt(addRole)
+            .then( (response) =>
+            {
+                console.log(response);
+            })
+     }
+     if (option === "Add Department") {
+        inquirer
+            .prompt(addDepartment)
+            .then( (response) =>
+            {
+                console.log(response);
+            })
+     }     
 }
 
 function update(option) {
