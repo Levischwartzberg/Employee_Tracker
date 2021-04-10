@@ -1,4 +1,6 @@
 const inquirer = require("inquirer");
+const mysql = require('mysql');
+const passcode = require('./creds.js');
 
 const initialQuestions = [
         {
