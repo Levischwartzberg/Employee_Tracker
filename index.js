@@ -80,6 +80,12 @@ const initialQuestions = [
     },
     {
         type: 'list',
+        message: 'Which employee would you like to update?',
+        name: 'option',
+        choices: employeesOptions
+    },
+    {
+        type: 'list',
         message: 'What would you like to update?',
         name: 'option',
         choices: ["Update Role", "Update Manager"]
@@ -135,13 +141,13 @@ const changeRole = [
         type: 'list',
         message: 'Choose the new role for the Employee',
         name: 'role',
-        choices: roles
+        choices: rolesOptions
     },
     {
         type: 'list',
         message: 'Update the Manager, if Necessary',
         name: 'manager',
-        choices: employees
+        choices: employeesOptions
     },
 ]
 
@@ -176,14 +182,23 @@ function startQuestions() {
             })
         }
         if (response.option === "Update Employee") {
-        inquirer
-            .prompt(initialQuestions[3])
-            .then( (response) =>
-            {
-                update(response.option);
-            })
-        }     
-    }
+            let employee = "";
+            inquirer
+                .prompt(initialQuestions[3])
+                .then( (response) =>
+                {
+                    employee = response.option;
+                    console.log(employee);
+                    inquirer
+                        .prompt(initialQuestions[4])
+                        .then( (response) =>
+                        {
+                            console.log(response.option + employee);
+                            update(response.option, employee);
+                        })  
+                })  
+            }         
+        }
     )
 }
 
@@ -194,7 +209,7 @@ function addEmpDepOrRole(option) {
             .prompt(addEmployee)
             .then( (response) =>
             {
-                appendEmployee(response.firstName, response.lastName, convertRole(response.role), convertManager(response.manager));
+                appendEmployee(response.firstName, response.lastName, convertRole(response.role), convertEmployee(response.manager));
             })
     } 
     if (option === "Add Role") {
@@ -215,13 +230,14 @@ function addEmpDepOrRole(option) {
     }     
 }
 
-function update(option) {
+function update(option, employee) {
     if (option === "Update Role") {
         inquirer
             .prompt(changeRole)
             .then( (response) =>
             {
-                console.log(response);
+                console.log(response.role);
+                updateEmployeeRole(convertRole(response.role), convertEmployee(employee), convertEmployee(response.manager));
             })
     }
     if (option === "Update Manager") {
@@ -243,7 +259,7 @@ function convertRole(role) {
     }
 }
 
-function convertManager(manager) {
+function convertEmployee(manager) {
     for (i=0; i<roles.length; i++) {
         if (manager === `ID: ${employees[i].Id} ${employees[i].firstName} ${employees[i].lastName}`) {
             return employees[i].Id
@@ -270,12 +286,13 @@ const appendEmployee = (firstName, lastName, roleId, managerId) => {
 
   };
 
-const updateEmployeeRole = (role, employee_id) => {
+const updateEmployeeRole = (role, employee_id, manager) => {
     const query = connection.query(
       'UPDATE employees SET ? WHERE ?',
       [
         {
           role_id: role,
+          manager_id: manager,
         },
         {
           id: employee_id,
