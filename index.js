@@ -2,6 +2,57 @@ const inquirer = require("inquirer");
 const mysql = require('mysql');
 const passcode = require('./creds.js');
 
+const Employee = require('./classes/Employee');
+const Department = require('./classes/Department');
+const Role = require('./classes/Role');
+
+const roles = [];
+const employees = [];
+const departments = [];
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    port: 3306,
+    user: 'root',
+    password: passcode,
+    database: 'employeesDB',
+  });
+  
+  connection.connect((err) => {
+    if (err) throw err;
+    console.log(`connected as id ${connection.threadId}`);
+    afterConnection();
+    connection.end();
+  });
+  
+  const afterConnection = () => {
+      connection.query('SELECT * FROM employees', (err, res) => {
+        if (err) throw err;
+        console.log(res[0].manager_id);
+        for (i=0; i<res.length; i++) {
+            let employee = new Employee(res[i].id, res[i].first_name, res[i].last_name, res[i].role_id, res[i].manager_id);
+            employees.push(`ID: ${employee.Id} ${employee.firstName} ${employee.lastName}`);
+        }
+        console.log(employees);
+      });
+      connection.query('SELECT * FROM roles', (err, res) => {
+        if (err) throw err;
+        for (i=0; i<res.length; i++) {
+            let role = new Role(res[i].id, res[i].title, res[i].salary, res[i].department_id);
+            roles.push(role.title);
+        }
+        console.log(roles);
+      });
+      connection.query('SELECT * FROM departments', (err, res) => {
+        if (err) throw err;
+        for (i=0; i<res.length; i++) {
+            let department = new Department(res[i].id, res[i].dept_name);
+            departments.push(department.name);
+        }
+        console.log(departments);
+      });
+    };
+
 const initialQuestions = [
     {
         type: 'list',
@@ -44,13 +95,13 @@ const addEmployee = [
         type: 'list',
         message: 'Choose a Role for the Employee',
         name: 'role',
-        choices: []
+        choices: roles
     },
     {
         type: 'list',
         message: 'Choose an Employee Manager, if Applicable',
         name: 'manager',
-        choices: []
+        choices: employees
     },
 ]
 
@@ -69,7 +120,7 @@ const addRole = [
         type: 'list',
         message: 'Choose the Department for the Role',
         name: 'department',
-        choices: []
+        choices: departments
     }
 ]
 
@@ -151,27 +202,3 @@ function update(option) {
 }
 
 startQuestions();
-
-const connection = mysql.createConnection({
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: passcode,
-    database: 'employeesDB',
-  });
-  
-  connection.connect((err) => {
-    if (err) throw err;
-    console.log(`connected as id ${connection.threadId}`);
-    afterConnection();
-    connection.end();
-  });
-  
-  const afterConnection = () => {
-      connection.query('SELECT * FROM roles', (err, res) => {
-        if (err) throw err;
-        console.log(res);
-        // data = res;
-        // console.log(data[0].flavor);
-      });
-    };
