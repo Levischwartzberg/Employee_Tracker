@@ -28,12 +28,12 @@ const connection = mysql.createConnection({
   const afterConnection = () => {
       connection.query('SELECT * FROM employees', (err, res) => {
         if (err) throw err;
-        console.log(res[0].manager_id);
+        // console.log(res[0].manager_id);
         for (i=0; i<res.length; i++) {
             let employee = new Employee(res[i].id, res[i].first_name, res[i].last_name, res[i].role_id, res[i].manager_id);
             employees.push(`ID: ${employee.Id} ${employee.firstName} ${employee.lastName}`);
         }
-        console.log(employees);
+        employees.unshift("N/A");
       });
       connection.query('SELECT * FROM roles', (err, res) => {
         if (err) throw err;
@@ -41,7 +41,7 @@ const connection = mysql.createConnection({
             let role = new Role(res[i].id, res[i].title, res[i].salary, res[i].department_id);
             roles.push(role.title);
         }
-        console.log(roles);
+        // console.log(roles);
       });
       connection.query('SELECT * FROM departments', (err, res) => {
         if (err) throw err;
@@ -49,7 +49,7 @@ const connection = mysql.createConnection({
             let department = new Department(res[i].id, res[i].dept_name);
             departments.push(department.name);
         }
-        console.log(departments);
+        // console.log(departments);
       });
     };
 
@@ -122,6 +122,21 @@ const addRole = [
         name: 'department',
         choices: departments
     }
+]
+
+const changeRole = [
+    {
+        type: 'list',
+        message: 'Choose the new role for the Employee',
+        name: 'role',
+        choices: roles
+    },
+    {
+        type: 'list',
+        message: 'Update the Manager, if Necessary',
+        name: 'manager',
+        choices: employees
+    },
 ]
 
 const addDepartment = [
@@ -198,7 +213,22 @@ function addEmpDepOrRole(option) {
 }
 
 function update(option) {
-    console.log(option);
+    if (option === "Update Role") {
+        inquirer
+            .prompt(changeRole)
+            .then( (response) =>
+            {
+                console.log(response);
+            })
+    }
+    if (option === "Update Manager") {
+        inquirer
+            .prompt(changeRole[1])
+            .then( (response) =>
+            {
+                console.log(response);
+            })
+    }
 }
 
 startQuestions();
