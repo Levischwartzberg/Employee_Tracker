@@ -6,6 +6,9 @@ const Employee = require('./classes/Employee');
 const Department = require('./classes/Department');
 const Role = require('./classes/Role');
 
+const rolesOptions = [];
+const employeesOptions = [];
+const departmentsOptions = [];
 const roles = [];
 const employees = [];
 const departments = [];
@@ -22,7 +25,7 @@ const connection = mysql.createConnection({
     if (err) throw err;
     console.log(`connected as id ${connection.threadId}`);
     afterConnection();
-    connection.end();
+    // connection.end();
   });
   
   const afterConnection = () => {
@@ -31,7 +34,8 @@ const connection = mysql.createConnection({
         // console.log(res[0].manager_id);
         for (i=0; i<res.length; i++) {
             let employee = new Employee(res[i].id, res[i].first_name, res[i].last_name, res[i].role_id, res[i].manager_id);
-            employees.push(`ID: ${employee.Id} ${employee.firstName} ${employee.lastName}`);
+            employeesOptions.push(`ID: ${employee.Id} ${employee.firstName} ${employee.lastName}`);
+            employees.push(employee);
         }
         employees.unshift("N/A");
       });
@@ -39,7 +43,8 @@ const connection = mysql.createConnection({
         if (err) throw err;
         for (i=0; i<res.length; i++) {
             let role = new Role(res[i].id, res[i].title, res[i].salary, res[i].department_id);
-            roles.push(role.title);
+            rolesOptions.push(role.title);
+            roles.push(role);
         }
         // console.log(roles);
       });
@@ -47,7 +52,8 @@ const connection = mysql.createConnection({
         if (err) throw err;
         for (i=0; i<res.length; i++) {
             let department = new Department(res[i].id, res[i].dept_name);
-            departments.push(department.name);
+            departmentsOptions.push(department.name);
+            departments.push(department);
         }
         // console.log(departments);
       });
@@ -95,13 +101,13 @@ const addEmployee = [
         type: 'list',
         message: 'Choose a Role for the Employee',
         name: 'role',
-        choices: roles
+        choices: rolesOptions
     },
     {
         type: 'list',
         message: 'Choose an Employee Manager, if Applicable',
         name: 'manager',
-        choices: employees
+        choices: employeesOptions
     },
 ]
 
@@ -120,7 +126,7 @@ const addRole = [
         type: 'list',
         message: 'Choose the Department for the Role',
         name: 'department',
-        choices: departments
+        choices: departmentsOptions
     }
 ]
 
@@ -147,6 +153,7 @@ const addDepartment = [
     }
 ]
 
+//prompts
 function startQuestions() {
     inquirer
     .prompt(initialQuestions[0])
@@ -180,10 +187,6 @@ function startQuestions() {
     )
 }
 
-function viewEmployees(option) {
-    console.log(option);
-}
-
 function addEmpDepOrRole(option) {
     console.log(option);
     if (option === "Add Employee") {
@@ -191,7 +194,7 @@ function addEmpDepOrRole(option) {
             .prompt(addEmployee)
             .then( (response) =>
             {
-                console.log(response);
+                appendEmployee(response.firstName, response.lastName, convertRole(response.role), convertManager(response.manager));
             })
     } 
     if (option === "Add Role") {
@@ -231,4 +234,64 @@ function update(option) {
     }
 }
 
+//misc
+function convertRole(role) {
+    for (i=0; i<roles.length; i++) {
+        if (role === roles[i].title) {
+            return roles[i].roleId;
+        }
+    }
+}
+
+function convertManager(manager) {
+    for (i=0; i<roles.length; i++) {
+        if (manager === `ID: ${employees[i].Id} ${employees[i].firstName} ${employees[i].lastName}`) {
+            return employees[i].Id
+        }
+    }
+}
+
+//queries
+const appendEmployee = (firstName, lastName, roleId, managerId) => {
+    const query = connection.query(
+      'INSERT INTO employees SET ?',
+      {
+        first_name: firstName,
+        last_name: lastName,
+        role_id: roleId,
+        manager_id: managerId
+      },
+      (err, res) => {
+        if (err) throw err;
+        console.log(`You've succesfully added new employee, ${firstName} ${lastName}!`);
+      }
+    );
+    connection.end();
+
+  };
+
+const updateEmployeeRole = (role, employee_id) => {
+    const query = connection.query(
+      'UPDATE employees SET ? WHERE ?',
+      [
+        {
+          role_id: role,
+        },
+        {
+          id: employee_id,
+        },
+      ],
+      (err, res) => {
+        if (err) throw err;
+        console.log(`You've succesfully updated`);
+      }
+    )
+    connection.end();
+};
+
+function viewEmployees(option) {
+    console.log(option);
+}
+
+//start application
 startQuestions();
