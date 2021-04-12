@@ -151,3 +151,27 @@ function update(option) {
 }
 
 startQuestions();
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    port: 3306,
+    user: 'root',
+    password: passcode,
+    database: 'employeesDB',
+  });
+  
+  connection.connect((err) => {
+    if (err) throw err;
+    console.log(`connected as id ${connection.threadId}`);
+    afterConnection();
+    connection.end();
+  });
+  
+  const afterConnection = () => {
+      connection.query('SELECT * FROM roles', (err, res) => {
+        if (err) throw err;
+        console.log(res);
+        // data = res;
+        // console.log(data[0].flavor);
+      });
+    };
