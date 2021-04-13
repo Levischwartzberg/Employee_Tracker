@@ -377,13 +377,18 @@ const updateEmployeeManager = (employee_id, manager) => {
 };
 
 const viewAll = () => {
-    connection.query(`SELECT employees.id, employees.first_name, employees.last_name, roles.title, roles.salary
-    FROM employees
-    INNER JOIN roles ON employees.role_id = roles.id`, (err, res) => {
+    connection.query(`SELECT e.id, e.first_name, e.last_name, roles.title, roles.salary, departments.dept_name, CONCAT(m.first_name,' ',m.last_name) AS "Manager"
+    FROM employees e
+    LEFT JOIN employees m ON e.manager_id = m.id
+    LEFT JOIN roles ON e.role_id = roles.id
+    LEFT JOIN departments ON roles.id = departments.id`, (err, res) => {
         if (err) throw err;
         console.table(res);
     });
     connection.end();
+}
+
+const viewByRole = () => {
 }
 
 //start application
