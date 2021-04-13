@@ -37,7 +37,9 @@ const connection = mysql.createConnection({
             employeesOptions.push(`ID: ${employee.Id} ${employee.firstName} ${employee.lastName}`);
             employees.push(employee);
         }
-        employees.unshift("N/A");
+        employeesOptions.unshift("N/A");
+        console.log(employees);
+        console.log(employeesOptions);
       });
       connection.query('SELECT * FROM roles', (err, res) => {
         if (err) throw err;
@@ -145,7 +147,7 @@ const changeRole = [
     },
     {
         type: 'list',
-        message: 'Update the Manager, if Necessary',
+        message: 'Update the Manager (choose N/A if there is no change)',
         name: 'manager',
         choices: employeesOptions
     },
@@ -245,7 +247,7 @@ function update(option, employee) {
             .prompt(changeRole[1])
             .then( (response) =>
             {
-                console.log(response);
+                updateEmployeeManager(convertEmployee(employee), convertEmployee(response.manager))
             })
     }
 }
@@ -259,10 +261,15 @@ function convertRole(role) {
     }
 }
 
-function convertEmployee(manager) {
-    for (i=0; i<roles.length; i++) {
-        if (manager === `ID: ${employees[i].Id} ${employees[i].firstName} ${employees[i].lastName}`) {
-            return employees[i].Id
+function convertEmployee(employee) {
+    if (employee === "N/A") {
+        return "N/A";
+    }
+    else {
+        for (i=0; i<roles.length; i++) {
+            if (employee === `ID: ${employees[i].Id} ${employees[i].firstName} ${employees[i].lastName}`) {
+                return employees[i].Id
+            }
         }
     }
 }
@@ -287,11 +294,49 @@ const appendEmployee = (firstName, lastName, roleId, managerId) => {
   };
 
 const updateEmployeeRole = (role, employee_id, manager) => {
+    if (manager === "N/A") {
+    const query = connection.query(
+        'UPDATE employees SET ? WHERE ?',
+        [
+            {
+            role_id: role,
+            },
+            {
+            id: employee_id,
+            },
+        ],
+        (err, res) => {
+            if (err) throw err;
+            console.log(`You've succesfully updated the role.`);
+        }
+        )
+    } 
+    else {
+    const query = connection.query(
+        'UPDATE employees SET ? WHERE ?',
+        [
+            {
+            role_id: role,
+            manager_id: manager,
+            },
+            {
+            id: employee_id,
+            },
+        ],
+        (err, res) => {
+            if (err) throw err;
+            console.log(`You've succesfully updated the role.`);
+        }
+        )
+    }
+    connection.end();
+};
+
+const updateEmployeeManager = (employee_id, manager) => {
     const query = connection.query(
       'UPDATE employees SET ? WHERE ?',
       [
         {
-          role_id: role,
           manager_id: manager,
         },
         {
