@@ -278,6 +278,18 @@ function convertEmployee(employee) {
     }
 }
 
+function viewEmployees(option) {
+    if (option === "View All Employees") {
+        viewAll();
+    }
+    else if (option === "View Employees by Role") {
+        viewByRole();
+    }
+    else if (option === "View Employees by Department") {
+        viewByDepartment();
+    }
+}
+
 //queries
 const appendEmployee = (firstName, lastName, roleId, managerId) => {
     const query = connection.query(
@@ -360,12 +372,18 @@ const updateEmployeeManager = (employee_id, manager) => {
               console.log(`You've succesfully updated the manager`);
             }
           )
-    }
+        }
     connection.end();
 };
 
-function viewEmployees(option) {
-    console.log(option);
+const viewAll = () => {
+    connection.query(`SELECT employees.id, employees.first_name, employees.last_name, roles.title, roles.salary
+    FROM employees
+    INNER JOIN roles ON employees.role_id = roles.id`, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+    });
+    connection.end();
 }
 
 //start application
