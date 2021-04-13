@@ -29,6 +29,12 @@ const connection = mysql.createConnection({
   });
   
   const afterConnection = () => {
+    rolesOptions.splice(0, rolesOptions.length);
+    employeesOptions.splice(0, employeesOptions.length);
+    departmentsOptions.splice(0, departmentsOptions.length);
+    roles.splice(0, roles.length);
+    employees.splice(0, employees.length);
+    departments.splice(0, departments.length);
       connection.query('SELECT * FROM employees', (err, res) => {
         if (err) throw err;
         // console.log(res[0].manager_id);
@@ -325,6 +331,27 @@ function viewEmployees(option) {
     }
 }
 
+function goOn() {
+    inquirer
+        .prompt({
+            type: 'list',
+            message: "Would you like to continue viewing or operating on the database?",
+            name: 'continue',
+            choices: ["Yes", "No"]
+        })
+        .then( (response) =>
+        {
+            if (response.continue === "Yes") {
+                console.log("test")
+                afterConnection();
+                startQuestions();
+            }
+            else {
+                connection.end();
+            }
+        })
+}
+
 //queries
 const appendEmployee = (firstName, lastName, roleId, managerId) => {
     if (managerId === "none") {
@@ -346,7 +373,7 @@ const appendEmployee = (firstName, lastName, roleId, managerId) => {
         console.log(`You've succesfully added new employee, ${firstName} ${lastName}!`);
       }
     );
-    connection.end();
+    goOn();
   };
 
 const appendDepartment = (department) => {
@@ -360,7 +387,7 @@ const query = connection.query(
     console.log(`You've succesfully added a new department, ${department}!`);
     }
 );
-connection.end();
+goOn();
 };
 
 const appendRole = (role, salary, department) => {
@@ -376,7 +403,7 @@ const query = connection.query(
     console.log(`You've succesfully added a new role, ${role}!`);
     }
 );
-connection.end();
+goOn();
 };
 
 const updateEmployeeRole = (role, employee_id, manager) => {
@@ -415,7 +442,7 @@ const updateEmployeeRole = (role, employee_id, manager) => {
         }
         )
     }
-    connection.end();
+    goOn();
 };
 
 const updateEmployeeManager = (employee_id, manager) => {
@@ -443,7 +470,7 @@ const updateEmployeeManager = (employee_id, manager) => {
             }
           )
         }
-    connection.end();
+    goOn();
 };
 
 const viewAll = () => {
@@ -455,7 +482,7 @@ const viewAll = () => {
         if (err) throw err;
         console.table(res);
     });
-    connection.end();
+    goOn();
 }
 
 const viewByRole = (role) => {
@@ -466,7 +493,7 @@ const viewByRole = (role) => {
         if (err) throw err;
         console.table(res);
     });
-    connection.end();
+    goOn();
 }
 
 const viewByDepartment = (department) => {
@@ -479,7 +506,7 @@ const viewByDepartment = (department) => {
         if (err) throw err;
         console.table(res);
     });
-    connection.end();
+    goOn();
 }
 
 
