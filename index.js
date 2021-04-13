@@ -283,7 +283,17 @@ function viewEmployees(option) {
         viewAll();
     }
     else if (option === "View Employees by Role") {
-        viewByRole();
+        inquirer
+        .prompt({
+            type: 'list',
+            message: 'Choose the role to view employees by.',
+            name: 'role',
+            choices: rolesOptions
+        })
+        .then( (response) =>
+        {
+            viewByRole(convertRole(response.role));
+        })
     }
     else if (option === "View Employees by Department") {
         viewByDepartment();
@@ -381,14 +391,23 @@ const viewAll = () => {
     FROM employees e
     LEFT JOIN employees m ON e.manager_id = m.id
     LEFT JOIN roles ON e.role_id = roles.id
-    LEFT JOIN departments ON roles.id = departments.id`, (err, res) => {
+    LEFT JOIN departments ON roles.department_id = departments.id`, (err, res) => {
         if (err) throw err;
         console.table(res);
     });
     connection.end();
 }
 
-const viewByRole = () => {
+const viewByRole = (role) => {
+    console.log(role);
+    connection.query(`SELECT employees.id, employees.first_name, employees.last_name, roles.title
+    FROM employees
+    LEFT JOIN roles ON employees.role_id = roles.id
+    WHERE employees.role_id = ${role}`, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+    });
+    connection.end();
 }
 
 //start application
