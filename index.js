@@ -370,6 +370,8 @@ const appendEmployee = (firstName, lastName, roleId, managerId) => {
       },
       (err, res) => {
         if (err) throw err;
+        console.log('\n');
+        console.log('\n');
         console.log(`You've succesfully added new employee, ${firstName} ${lastName}!`);
       }
     );
@@ -384,7 +386,9 @@ const query = connection.query(
     },
     (err, res) => {
     if (err) throw err;
-    console.log(`You've succesfully added a new department, ${department}!`);
+        console.log('\n');
+        console.log('\n');
+        console.log(`You've succesfully added a new department, ${department}!`);
     }
 );
 goOn();
@@ -400,7 +404,9 @@ const query = connection.query(
     },
     (err, res) => {
     if (err) throw err;
-    console.log(`You've succesfully added a new role, ${role}!`);
+        console.log('\n');
+        console.log('\n');
+        console.log(`You've succesfully added a new role, ${role}!`);
     }
 );
 goOn();
@@ -420,6 +426,8 @@ const updateEmployeeRole = (role, employee_id, manager) => {
         ],
         (err, res) => {
             if (err) throw err;
+            console.log('\n');
+            console.log('\n');
             console.log(`You've succesfully updated the role.`);
         }
         )
@@ -438,6 +446,8 @@ const updateEmployeeRole = (role, employee_id, manager) => {
         ],
         (err, res) => {
             if (err) throw err;
+            console.log('\n');
+            console.log('\n');
             console.log(`You've succesfully updated the role.`);
         }
         )
@@ -465,8 +475,10 @@ const updateEmployeeManager = (employee_id, manager) => {
               },
             ],
             (err, res) => {
-              if (err) throw err;
-              console.log(`You've succesfully updated the manager`);
+                if (err) throw err;
+                console.log('\n');
+                console.log('\n');
+                console.log(`You've succesfully updated the manager`);
             }
           )
         }
@@ -480,6 +492,8 @@ const viewAll = () => {
     LEFT JOIN roles ON e.role_id = roles.id
     LEFT JOIN departments ON roles.department_id = departments.id`, (err, res) => {
         if (err) throw err;
+        console.log('\n');
+        console.log('\n');
         console.table(res);
     });
     goOn();
@@ -491,6 +505,8 @@ const viewByRole = (role) => {
     LEFT JOIN roles ON employees.role_id = roles.id
     WHERE employees.role_id = ${role}`, (err, res) => {
         if (err) throw err;
+        console.log('\n');
+        console.log('\n');
         console.table(res);
     });
     goOn();
@@ -504,6 +520,8 @@ const viewByDepartment = (department) => {
     LEFT JOIN departments ON roles.department_id = departments.id
     WHERE roles.department_id = ${department}`, (err, res) => {
         if (err) throw err;
+        console.log('\n');
+        console.log('\n');
         console.table(res);
     });
     goOn();
