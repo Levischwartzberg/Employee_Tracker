@@ -278,7 +278,7 @@ function convertEmployee(employee) {
         return "none";
     }
     else {
-        for (i=0; i<roles.length; i++) {
+        for (i=0; i<employees.length; i++) {
             if (employee === `ID: ${employees[i].Id} ${employees[i].firstName} ${employees[i].lastName}`) {
                 return employees[i].Id
             }
@@ -320,6 +320,12 @@ function viewEmployees(option) {
 
 //queries
 const appendEmployee = (firstName, lastName, roleId, managerId) => {
+    if (managerId === "none") {
+        managerId = 0;
+    }
+    if (managerId === "N/A") {
+        managerId = 0;
+    }
     const query = connection.query(
       'INSERT INTO employees SET ?',
       {
