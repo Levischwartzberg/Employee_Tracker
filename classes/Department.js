@@ -1,8 +1,6 @@
-const Role = require("./Role.js");
-
-class Department extends Role {
+class Department {
     constructor(deptId, name) {
-        super(deptId);
+        this.deptId = deptId;
         this.name = name;
 
         // if (typeof deptId !== "number") {

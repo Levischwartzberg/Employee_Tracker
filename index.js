@@ -262,6 +262,14 @@ function convertRole(role) {
     }
 }
 
+function convertDepartment(role) {
+    for (i=0; i<departments.length; i++) {
+        if (role === departments[i].name) {
+            return roles[i].deptId;
+        }
+    }
+}
+
 function convertEmployee(employee) {
     if (employee === "N/A") {
         return "N/A";
@@ -296,7 +304,17 @@ function viewEmployees(option) {
         })
     }
     else if (option === "View Employees by Department") {
-        viewByDepartment();
+        inquirer
+        .prompt({
+            type: 'list',
+            message: 'Choose the department to view employees by.',
+            name: 'department',
+            choices: departmentsOptions
+        })
+        .then( (response) =>
+        {
+            viewByDepartment(convertDepartment(response.department));
+        })
     }
 }
 
@@ -399,7 +417,6 @@ const viewAll = () => {
 }
 
 const viewByRole = (role) => {
-    console.log(role);
     connection.query(`SELECT employees.id, employees.first_name, employees.last_name, roles.title
     FROM employees
     LEFT JOIN roles ON employees.role_id = roles.id
@@ -409,6 +426,20 @@ const viewByRole = (role) => {
     });
     connection.end();
 }
+
+const viewByDepartment = (department) => {
+    console.log(department);
+    connection.query(`SELECT employees.id, employees.first_name, employees.last_name, departments.dept_name
+    FROM employees
+    LEFT JOIN roles ON employees.role_id = roles.id
+    LEFT JOIN departments ON roles.department_id = departments.id
+    WHERE roles.department_id = ${department}`, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+    });
+    connection.end();
+}
+
 
 //start application
 startQuestions();
