@@ -58,6 +58,7 @@ const connection = mysql.createConnection({
             departmentsOptions.push(department.name);
             departments.push(department);
         }
+        departmentsOptions.push("N/A");
         // console.log(departments);
       });
     };
@@ -216,21 +217,27 @@ function addEmpDepOrRole(option) {
             })
     } 
     if (option === "Add Role") {
-    inquirer
-        .prompt(addRole)
-        .then( (response) =>
-        {
-            console.log(response);
-        })
-    }
+        inquirer
+            .prompt(addRole)
+            .then( (response) =>
+            {
+                if (response.department === "N/A") {
+                    console.log("Add a department before you add a new role, or choose an existing department.")
+                    addEmpDepOrRole("Add Department");
+                }
+                else {
+                    appendRole(response.role, response.salary, convertDepartment(response.department));
+                }
+            })
+        }
     if (option === "Add Department") {
-    inquirer
-        .prompt(addDepartment)
-        .then( (response) =>
-        {
-            console.log(response);
-        })
-    }     
+        inquirer
+            .prompt(addDepartment)
+            .then( (response) =>
+            {
+                appendDepartment(response.department);
+            })
+        }     
 }
 
 function update(option, employee) {
@@ -265,7 +272,7 @@ function convertRole(role) {
 function convertDepartment(role) {
     for (i=0; i<departments.length; i++) {
         if (role === departments[i].name) {
-            return roles[i].deptId;
+            return departments[i].deptId;
         }
     }
 }
@@ -340,8 +347,37 @@ const appendEmployee = (firstName, lastName, roleId, managerId) => {
       }
     );
     connection.end();
-
   };
+
+const appendDepartment = (department) => {
+const query = connection.query(
+    'INSERT INTO departments SET ?',
+    {
+    dept_name: department
+    },
+    (err, res) => {
+    if (err) throw err;
+    console.log(`You've succesfully added a new department, ${department}!`);
+    }
+);
+connection.end();
+};
+
+const appendRole = (role, salary, department) => {
+const query = connection.query(
+    'INSERT INTO roles SET ?',
+    {
+    title: role,
+    salary: salary,
+    department_id: department
+    },
+    (err, res) => {
+    if (err) throw err;
+    console.log(`You've succesfully added a new role, ${role}!`);
+    }
+);
+connection.end();
+};
 
 const updateEmployeeRole = (role, employee_id, manager) => {
     if (manager === "N/A") {
