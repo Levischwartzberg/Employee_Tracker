@@ -38,8 +38,9 @@ const connection = mysql.createConnection({
             employees.push(employee);
         }
         employeesOptions.unshift("N/A");
-        console.log(employees);
-        console.log(employeesOptions);
+        employeesOptions.push("none");
+        // console.log(employees);
+        // console.log(employeesOptions);
       });
       connection.query('SELECT * FROM roles', (err, res) => {
         if (err) throw err;
@@ -147,7 +148,7 @@ const changeRole = [
     },
     {
         type: 'list',
-        message: 'Update the Manager (choose N/A if there is no change)',
+        message: 'Update the Manager (choose N/A if there is no change, none for no manager)',
         name: 'manager',
         choices: employeesOptions
     },
@@ -265,6 +266,9 @@ function convertEmployee(employee) {
     if (employee === "N/A") {
         return "N/A";
     }
+    else if (employee === "none") {
+        return "none";
+    }
     else {
         for (i=0; i<roles.length; i++) {
             if (employee === `ID: ${employees[i].Id} ${employees[i].firstName} ${employees[i].lastName}`) {
@@ -333,21 +337,30 @@ const updateEmployeeRole = (role, employee_id, manager) => {
 };
 
 const updateEmployeeManager = (employee_id, manager) => {
-    const query = connection.query(
-      'UPDATE employees SET ? WHERE ?',
-      [
-        {
-          manager_id: manager,
-        },
-        {
-          id: employee_id,
-        },
-      ],
-      (err, res) => {
-        if (err) throw err;
-        console.log(`You've succesfully updated`);
-      }
-    )
+    if (manager === "none") {
+        manager = 0;
+    }
+    if (manager === "N/A") {
+        connection.end();
+        return;
+    }
+    else {
+        const query = connection.query(
+            'UPDATE employees SET ? WHERE ?',
+            [
+              {
+                manager_id: manager,
+              },
+              {
+                id: employee_id,
+              },
+            ],
+            (err, res) => {
+              if (err) throw err;
+              console.log(`You've succesfully updated the manager`);
+            }
+          )
+    }
     connection.end();
 };
 
