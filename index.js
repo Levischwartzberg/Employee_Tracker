@@ -29,6 +29,7 @@ const connection = mysql.createConnection({
   });
   
   const afterConnection = () => {
+    //resets all prompt and object arrays to blank before filling each with the most recent database values
     rolesOptions.splice(0, rolesOptions.length);
     employeesOptions.splice(0, employeesOptions.length);
     departmentsOptions.splice(0, departmentsOptions.length);
@@ -69,6 +70,7 @@ const connection = mysql.createConnection({
       });
     };
 
+//MAIN QUESTIONS ARRAY
 const initialQuestions = [
     {
         type: 'list',
@@ -80,7 +82,7 @@ const initialQuestions = [
         type: 'list',
         message: 'What would you like to view?',
         name: 'option',
-        choices: ["View All Employees", "View Employees by Role", "View Employees by Department"]
+        choices: ["View All Employees", "View Employees by Role", "View Employees by Department", "View Employees by Manager"]
     },
     {
         type: 'list',
@@ -169,7 +171,7 @@ const addDepartment = [
     }
 ]
 
-//prompts
+//INQUIRER PROMPTS
 function startQuestions() {
     inquirer
     .prompt(initialQuestions[0])
@@ -198,12 +200,12 @@ function startQuestions() {
                 .then( (response) =>
                 {
                     employee = response.option;
-                    console.log(employee);
+                    // console.log(employee);
                     inquirer
                         .prompt(initialQuestions[4])
                         .then( (response) =>
                         {
-                            console.log(response.option + employee);
+                            // console.log(response.option + employee);
                             update(response.option, employee);
                         })  
                 })  
@@ -284,7 +286,7 @@ function update(option, employee) {
     }
 }
 
-//misc
+//UTILITY FUNCTIONS
 function convertRole(role) {
     for (i=0; i<roles.length; i++) {
         if (role === roles[i].title) {
@@ -347,6 +349,30 @@ function viewEmployees(option) {
             viewByDepartment(convertDepartment(response.department));
         })
     }
+    else if (option === "View Employees by Manager") {
+        let managersOptions = [];
+        for (i=0; i<employees.length; i++) {
+            manager = employees[i];
+            for (j=0; j<employees.length; j++) {
+                if (employees[j].managerId === manager.Id) {
+                    managersOptions.push(`ID: ${manager.Id} ${manager.firstName} ${manager.lastName}`);
+                }
+            }
+        }
+        //eliminates duplicates from managersOptions array
+        managersOptions = [... new Set(managersOptions)];
+        inquirer
+        .prompt({
+            type: 'list',
+            message: 'Choose the manager to view employees by.',
+            name: 'manager',
+            choices: managersOptions
+        })
+        .then( (response) =>
+        {
+            viewByManager(convertEmployee(response.manager));
+        })
+    }
 }
 
 function goOn() {
@@ -370,7 +396,7 @@ function goOn() {
         })
 }
 
-//queries
+//QUERIES SECTION
 const appendEmployee = (firstName, lastName, roleId, managerId) => {
     if (managerId === "none") {
         managerId = 0;
@@ -551,6 +577,21 @@ const viewByDepartment = (department) => {
     LEFT JOIN roles ON e.role_id = roles.id
     LEFT JOIN departments ON roles.department_id = departments.id
     WHERE roles.department_id = ${department}`, (err, res) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log('\n');
+        console.table(res);
+    });
+    goOn();
+}
+
+const viewByManager = (manager) => {
+    console.log(manager);
+    connection.query(`SELECT e.id, e.first_name, e.last_name, roles.title, CONCAT(m.first_name,' ',m.last_name) AS "Manager" 
+    FROM employees e
+    LEFT JOIN employees m ON e.manager_id = m.id
+    LEFT JOIN roles ON e.role_id = roles.id
+    WHERE e.manager_id = ${manager}`, (err, res) => {
         if (err) throw err;
         console.log('\n');
         console.log('\n');
