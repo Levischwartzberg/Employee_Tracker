@@ -98,7 +98,7 @@ const initialQuestions = [
         type: 'list',
         message: 'What would you like to update?',
         name: 'option',
-        choices: ["Update Role", "Update Manager"]
+        choices: ["Update Role", "Update Manager", "Delete Employee"]
     }
 ]
 
@@ -264,6 +264,24 @@ function update(option, employee) {
                 updateEmployeeManager(convertEmployee(employee), convertEmployee(response.manager))
             })
     }
+    if (option === "Delete Employee") {
+        inquirer
+            .prompt({
+                type: 'list',
+                message: 'Are you sure you want to remove this employee from the database?',
+                name: 'remove',
+                choices: ["Yes, Remove", "No, Keep"]
+            })
+            .then( (response) =>
+            {
+                if (response.remove === "Yes, Remove") {
+                    removeEmployee(convertEmployee(employee));
+                }
+                else {
+                    goOn();
+                }
+            })
+    }
 }
 
 //misc
@@ -411,6 +429,19 @@ const query = connection.query(
 );
 goOn();
 };
+
+const removeEmployee = (employee) => {
+    const query = connection.query(
+        `DELETE FROM employees WHERE id=${employee}`,
+        (err, res) => {
+            if (err) throw err;
+                console.log('\n');
+                console.log('\n');
+                console.log(`You've succesfully deleted the employee from the database.`);
+            }
+    );
+    goOn();
+}
 
 const updateEmployeeRole = (role, employee_id, manager) => {
     if (manager === "N/A") {
