@@ -492,7 +492,6 @@ function goOn() {
         .then( (response) =>
         {
             if (response.continue === "Yes") {
-                console.log("test")
                 afterConnection();
                 startQuestions();
             }
@@ -702,7 +701,7 @@ const viewByRole = (role) => {
 }
 
 const viewByDepartment = (department) => {
-    console.log(department);
+    // console.log(department);
     connection.query(`SELECT e.id, e.first_name, e.last_name, departments.dept_name, CONCAT(m.first_name,' ',m.last_name) AS "Manager"
     FROM employees e
     LEFT JOIN employees m ON e.manager_id = m.id
@@ -718,7 +717,7 @@ const viewByDepartment = (department) => {
 }
 
 const viewDeptBudget = (department) => {
-    console.log(department);
+    // console.log(department);
     connection.query(`SELECT roles.department_id, SUM(salary)
     FROM roles
     WHERE roles.department_id = ${department}`, (err, res) => {
@@ -731,7 +730,7 @@ const viewDeptBudget = (department) => {
 }
 
 const viewByManager = (manager) => {
-    console.log(manager);
+    // console.log(manager);
     connection.query(`SELECT e.id, e.first_name, e.last_name, roles.title, CONCAT(m.first_name,' ',m.last_name) AS "Manager" 
     FROM employees e
     LEFT JOIN employees m ON e.manager_id = m.id
