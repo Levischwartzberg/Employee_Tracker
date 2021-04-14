@@ -82,7 +82,7 @@ const initialQuestions = [
         type: 'list',
         message: 'What would you like to view?',
         name: 'option',
-        choices: ["View All Employees", "View Employees by Role", "View Employees by Department", "View Employees by Manager"]
+        choices: ["View All Employees", "View Employees by Role", "View Employees by Department", "View Employees by Manager", "View Department Budget"]
     },
     {
         type: 'list',
@@ -373,6 +373,19 @@ function viewEmployees(option) {
             viewByManager(convertEmployee(response.manager));
         })
     }
+    else if (option === "View Department Budget") {
+        inquirer
+        .prompt({
+            type: 'list',
+            message: 'Choose the department to view its budget.',
+            name: 'department',
+            choices: departmentsOptions
+        })
+        .then( (response) =>
+        {
+            viewDeptBudget(convertDepartment(response.department));
+        })
+    }
 }
 
 function goOn() {
@@ -576,6 +589,19 @@ const viewByDepartment = (department) => {
     LEFT JOIN employees m ON e.manager_id = m.id
     LEFT JOIN roles ON e.role_id = roles.id
     LEFT JOIN departments ON roles.department_id = departments.id
+    WHERE roles.department_id = ${department}`, (err, res) => {
+        if (err) throw err;
+        console.log('\n');
+        console.log('\n');
+        console.table(res);
+    });
+    goOn();
+}
+
+const viewDeptBudget = (department) => {
+    console.log(department);
+    connection.query(`SELECT roles.department_id, SUM(salary)
+    FROM roles
     WHERE roles.department_id = ${department}`, (err, res) => {
         if (err) throw err;
         console.log('\n');
