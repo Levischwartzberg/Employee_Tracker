@@ -545,9 +545,10 @@ const viewByRole = (role) => {
 
 const viewByDepartment = (department) => {
     console.log(department);
-    connection.query(`SELECT employees.id, employees.first_name, employees.last_name, departments.dept_name
-    FROM employees
-    LEFT JOIN roles ON employees.role_id = roles.id
+    connection.query(`SELECT e.id, e.first_name, e.last_name, departments.dept_name, CONCAT(m.first_name,' ',m.last_name) AS "Manager"
+    FROM employees e
+    LEFT JOIN employees m ON e.manager_id = m.id
+    LEFT JOIN roles ON e.role_id = roles.id
     LEFT JOIN departments ON roles.department_id = departments.id
     WHERE roles.department_id = ${department}`, (err, res) => {
         if (err) throw err;
