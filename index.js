@@ -76,7 +76,7 @@ const initialQuestions = [
         type: 'list',
         message: 'What would you like to do?',
         name: 'option',
-        choices: ["View Employees", "Add Employees, Department, or Role", "Update Employee"]
+        choices: ["View Employees", "Add/Delete Employees, Department, or Role", "Update Employee"]
     },
     {
         type: 'list',
@@ -88,7 +88,7 @@ const initialQuestions = [
         type: 'list',
         message: 'What would you like to add?',
         name: 'option',
-        choices: ["Add Employee", "Add Role", "Add Department"]
+        choices: ["Add Employee", "Add Role", "Add Department", "Delete Employee", "Delete Role", "Delete Department"]
     },
     {
         type: 'list',
@@ -171,6 +171,27 @@ const addDepartment = [
     }
 ]
 
+const deleteEl = [
+    {
+        type: 'list',
+        message: 'Choose an Employee to Delete',
+        name: 'employee',
+        choices: employeesOptions
+    },
+    {
+        type: 'list',
+        message: 'Choose a Role to Delete',
+        name: 'role',
+        choices: rolesOptions
+    },
+    {
+        type: 'list',
+        message: 'Choose a Department to Delete',
+        name: 'department',
+        choices: departmentsOptions
+    },
+]
+
 //INQUIRER PROMPTS
 function startQuestions() {
     inquirer
@@ -185,7 +206,7 @@ function startQuestions() {
                 viewEmployees(response.option);
             })
         }
-        if (response.option === "Add Employees, Department, or Role") {
+        if (response.option === "Add/Delete Employees, Department, or Role") {
         inquirer
             .prompt(initialQuestions[2])
             .then( (response) =>
@@ -245,7 +266,79 @@ function addEmpDepOrRole(option) {
             {
                 appendDepartment(response.department);
             })
-        }     
+        }
+        if (option === "Delete Employee") {
+            inquirer
+                .prompt(deleteEl[0])
+                .then( (response) =>
+                {
+                    let employee = response.employee;
+                    inquirer
+                        .prompt({
+                            type: 'list',
+                            message: 'Are you sure you want to remove this employee from the database?',
+                            name: 'remove',
+                            choices: ["Yes, Remove", "No, Keep"]
+                        })
+                        .then( (response) =>
+                        {
+                            if (response.remove === "Yes, Remove") {
+                                removeEmployee(convertEmployee(employee));
+                            }
+                            else {
+                                goOn();
+                            }
+                        })
+                })
+        }
+        if (option === "Delete Role") {
+            inquirer
+                .prompt(deleteEl[1])
+                .then( (response) =>
+                {
+                    let role = response.role;
+                    inquirer
+                        .prompt({
+                            type: 'list',
+                            message: 'Are you sure you want to remove this role from the database?',
+                            name: 'remove',
+                            choices: ["Yes, Remove", "No, Keep"]
+                        })
+                        .then( (response) =>
+                        {
+                            if (response.remove === "Yes, Remove") {
+                                removeRole(convertRole(role));
+                            }
+                            else {
+                                goOn();
+                            }
+                        })
+                })
+        }
+        if (option === "Delete Department") {
+            inquirer
+                .prompt(deleteEl[2])
+                .then( (response) =>
+                {
+                    let department = response.department;
+                    inquirer
+                        .prompt({
+                            type: 'list',
+                            message: 'Are you sure you want to remove this department from the database?',
+                            name: 'remove',
+                            choices: ["Yes, Remove", "No, Keep"]
+                        })
+                        .then( (response) =>
+                        {
+                            if (response.remove === "Yes, Remove") {
+                                removeDepartment(convertDepartment(department));
+                            }
+                            else {
+                                goOn();
+                            }
+                        })
+                })
+        }         
 }
 
 function update(option, employee) {
@@ -477,6 +570,32 @@ const removeEmployee = (employee) => {
                 console.log('\n');
                 console.log('\n');
                 console.log(`You've succesfully deleted the employee from the database.`);
+            }
+    );
+    goOn();
+}
+
+const removeRole = (role) => {
+    const query = connection.query(
+        `DELETE FROM roles WHERE id=${role}`,
+        (err, res) => {
+            if (err) throw err;
+                console.log('\n');
+                console.log('\n');
+                console.log(`You've succesfully deleted the role from the database.`);
+            }
+    );
+    goOn();
+}
+
+const removeDepartment = (department) => {
+    const query = connection.query(
+        `DELETE FROM departments WHERE id=${department}`,
+        (err, res) => {
+            if (err) throw err;
+                console.log('\n');
+                console.log('\n');
+                console.log(`You've succesfully deleted the department from the database.`);
             }
     );
     goOn();
