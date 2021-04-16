@@ -18,6 +18,7 @@ https://choosealicense.com/licenses/mit/
 ## Installation
 Run npm install to include the various node packages. It is also necessary to populate a SQL database with the Employee Seeds file.
 ## Usage
+A video of the usage can be found here. https://www.youtube.com/watch?v=ipAMbkgLlts
 This application has utility in that it allows a user to manage the data of many employees. roles, and departments. It is currently rudimentary in that it is purely node based, but in theory could be expanded to a better UI.
 ![Alt text](./images/preview1.jpg?raw=true "Sample query showing all current employees in the DB")
 ![Alt text](./images/preview2.jpg?raw=true "Sample query showing all employees in the engineering department")
